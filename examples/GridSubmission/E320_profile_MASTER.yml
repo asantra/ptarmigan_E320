@@ -1,0 +1,54 @@
+---
+# Example of how the angular profile of the emitted gamma rays
+# could be used to infer the collision a_0.
+# See Blackburn et al, PRAB 23, 064001 (2020), arXiv:1911.02349
+
+control:
+  lcfa: false
+  rng_seed: RNDMSEED
+  # rng_seed: 12
+  pair_creation: true
+
+laser:
+  a0: 10.0
+  wavelength: 0.8 * micro
+  fwhm_duration: 60.0 * femto
+  waist: 2.5 * micro
+  polarization: linear
+
+beam:
+  ne: 25000000
+  species: electron
+  gamma: 10.0 * GeV / (m * c^2)
+  # gamma: 13.0 * GeV / (m * c^2)
+  radius: 35.0 * micro
+  length: 50.0 * micro
+  rms_divergence: 0.07 * milli
+  collision_angle: 30.0 * degree
+  #### this is from a feature branch, may not work with master branch
+  collision_plane: vertical
+  
+
+output:
+  ident: auto
+  dump_all_particles: hdf5
+  coordinate_system: beam
+  discard_background_e: true
+  electron: 
+    - energy
+  photon:
+    - energy
+  positron:
+    - energy
+
+# stats:
+#   electron:
+#     - mean gamma
+#   photon:
+#     - variance angle_x`energy
+#     - variance angle_y`energy
+
+# constants:
+#   a0: 30.0
+#   gamma: 750.0 / 0.511
+  
