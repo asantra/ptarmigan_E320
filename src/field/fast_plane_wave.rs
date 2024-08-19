@@ -14,19 +14,24 @@ pub struct FastPlaneWave {
     n_cycles: f64,
     wavevector: FourVector,
     pol: Polarization,
+    pol_angle: f64,
     chirp_b: f64,
     envelope: Envelope,
 }
 
 impl FastPlaneWave {
     #[allow(unused)]
-    pub fn new(a0: f64, wavelength: f64, n_cycles: f64, pol: Polarization, chirp_b: f64) -> Self {
+    pub fn new(a0: f64, wavelength: f64, n_cycles: f64, pol: Polarization, pol_angle: f64, chirp_b: f64) -> Self {
         let wavevector = (2.0 * consts::PI / wavelength) * FourVector::new(1.0, 0.0, 0.0, 1.0);
         FastPlaneWave {
             a0,
             n_cycles,
             wavevector,
             pol,
+            pol_angle: match pol {
+                Polarization::Circular => 0.0,
+                Polarization::Linear => pol_angle,
+            },
             chirp_b,
             envelope: Envelope::CosSquared,
         }
@@ -119,6 +124,9 @@ impl FastPlaneWave {
         let E = -amplitude * ThreeVector::new(dax_dphi, day_dphi, 0.0);
         let B = (amplitude / SPEED_OF_LIGHT) * ThreeVector::new(day_dphi, -dax_dphi, 0.0);
 
+        let E = E.rotate_around_z(self.pol_angle);
+        let B = B.rotate_around_z(self.pol_angle);
+
         (E, B)
     }
 }
@@ -130,7 +138,9 @@ impl Field for FastPlaneWave {
         } else {
             1.0 + 2.0 * self.chirp_b * consts::PI * self.n_cycles
         };
-        Some( 0.1 / (SPEED_OF_LIGHT * self.wavevector[0] * chirp) )
+        let dt = 1.0 / (SPEED_OF_LIGHT * self.wavevector[0] * chirp);
+        let multiplier = (3_f64.sqrt() / (5.0 * ALPHA_FINE * self.a0)).min(0.1);
+        Some(dt * multiplier)
     }
 
     fn contains(&self, r: FourVector) -> bool {
@@ -190,7 +200,7 @@ mod tests {
         let t_start = -0.5 * n_cycles * wavelength / (SPEED_OF_LIGHT);
         let dt = 0.005 * 0.8e-6 / (SPEED_OF_LIGHT);
         let a0 = 100.0;
-        let laser = FastPlaneWave::new(a0, wavelength, n_cycles, Polarization::Circular, 0.0)
+        let laser = FastPlaneWave::new(a0, wavelength, n_cycles, Polarization::Circular, 0.0, 0.0)
             .with_envelope(Envelope::CosSquared);
 
         let mut u = FourVector::new(0.0, 0.0, 0.0, -100.0).unitize();

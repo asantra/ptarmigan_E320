@@ -1,5 +1,37 @@
 # Changelog
 
+## v1.3.5
+
+2024-03-08
+
+Fixed:
+
+* Crash when running with fewer than 20 particles per task.
+* Choice of timestep at very large a0.
+* Photon energy sampling at very large chi (LCFA).
+* `discard_background: true` removing primary photons.
+
+## v1.3.4
+
+2024-01-25
+
+Added:
+
+* Choice of collision plane.
+* Choice of laser polarization angle (LP only).
+
+## v1.3.3
+
+2023-09-20
+
+Added:
+
+* Documentation of physics coverage.
+
+Fixed:
+
+* Support for HDF5 v1.14
+
 ## v1.3.2
 
 2023-05-23
